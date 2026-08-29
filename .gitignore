@@ -1,0 +1,55 @@
+# Dados privados e extratos reais
+private_data/
+data/raw/
+data/private/
+notebooks/private/
+
+# Formatos financeiros bloqueados por padrao
+*.pdf
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.ofx
+*.qif
+*.db
+*.sqlite
+*.sqlite3
+
+# Somente fixtures sinteticas auditadas podem ser versionadas
+!samples/synthetic/*.csv
+!samples/synthetic/*.pdf
+
+# Notebooks podem armazenar saidas e dados pessoais
+*.ipynb
+.ipynb_checkpoints/
+
+# Credenciais e configuracoes locais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# IDE e sistema operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Artefatos locais
+dist/
+build/
+output/
+tmp/
+
