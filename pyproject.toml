@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "finance-agent"
-version = "0.1.0"
+version = "0.2.0"
 description = "Privacy-first financial statement ingestion and classification pipeline"
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.14"
 license = { text = "MIT" }
 dependencies = [
   "pydantic>=2.10,<3",
@@ -33,4 +33,3 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-
