@@ -42,6 +42,9 @@ validação não ficará acoplada ao WhatsApp.
 | `amount_minor` | Inteiro na menor unidade da moeda; em BRL, centavos. Saídas negativas e entradas positivas. |
 | `description_raw` | Destino ou origem do dinheiro, como estabelecimento, pessoa, conta, produto ou serviço. |
 
+`currency` acompanha o valor no padrão ISO de três letras. Formatos conhecidos
+definem a moeda; formatos novos exigem confirmação durante a aprovação.
+
 Um valor positivo sem `amount_direction` é pendente, pois o formato da fonte pode
 representar débitos e créditos como números positivos. Um valor negativo já pode
 ser interpretado como saída.

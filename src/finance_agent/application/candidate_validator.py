@@ -24,7 +24,10 @@ def _issue(code: DataQualityCode, field: str, message: str) -> DataQualityIssue:
     )
 
 
-def validate_candidate(candidate: TransactionCandidate, import_id: UUID) -> CandidateValidationResult:
+def validate_candidate(
+    candidate: TransactionCandidate,
+    import_id: UUID,
+) -> CandidateValidationResult:
     """Valida um registro sem depender do banco que o originou."""
 
     issues = list(candidate.extraction_issues)
@@ -110,6 +113,7 @@ def validate_candidate(candidate: TransactionCandidate, import_id: UUID) -> Cand
         transaction_date=candidate.transaction_date,
         transaction_time=candidate.transaction_time,
         amount_minor=signed_amount,
+        currency=candidate.currency,
         description_raw=raw_description,
         description_normalized=normalized_description,
         source_institution=candidate.source_institution,
