@@ -7,17 +7,24 @@ import unicodedata
 GENERIC_DESCRIPTION_TOKENS = {
     "BOLETO",
     "CARTAO",
+    "CARD",
     "COMPRA",
     "CREDITO",
+    "CREDIT",
     "DEBITO",
+    "DEBIT",
     "LANCAMENTO",
     "MASTERCARD",
     "PAGAMENTO",
+    "PAYMENT",
+    "PURCHASE",
     "PIX",
     "SAQUE",
     "SALDO",
     "TRANSFERENCIA",
+    "TRANSFER",
     "VISA",
+    "WITHDRAWAL",
 }
 
 

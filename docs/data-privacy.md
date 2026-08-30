@@ -20,6 +20,7 @@ Quando a classificacao por IA for implementada, o modelo devera receber apenas:
 
 - descricao normalizada e minimizada;
 - tipo da transacao;
+- moeda;
 - categorias permitidas;
 - regras relevantes.
 
@@ -32,4 +33,3 @@ Logs nao podem registrar conteudo bruto de linhas, descricoes completas, payload
 ## Dados sinteticos
 
 Os exemplos publicos nao sao copias mascaradas. Foram criados do zero e preservam somente caracteristicas tecnicas necessarias para testar delimitadores, sinais, IDs, duplicidades e segmentacao.
-

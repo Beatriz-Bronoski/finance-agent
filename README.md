@@ -2,7 +2,7 @@
 
 Pipeline financeiro extensivel para importar, normalizar, reconciliar e classificar transacoes de diferentes instituicoes. O projeto adota uma arquitetura local-first: dados financeiros reais permanecem fora do repositorio e da demonstracao publica.
 
-> Estado atual: Etapa 2 - schema canonico, validacao de qualidade e pendencias corrigiveis.
+> Estado atual: Etapa 3 - detecção de formato, parsers CSV e schema drift.
 
 ## Objetivos
 
@@ -24,6 +24,7 @@ Nunca adicione dados reais ao Git. Coloque-os em `private_data/`, que e bloquead
 finance-agent/
 |-- src/finance_agent/domain/
 |-- src/finance_agent/application/
+|-- src/finance_agent/ingestion/
 |-- tests/domain/
 |-- tests/application/
 |-- samples/synthetic/
@@ -53,6 +54,29 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
+## Etapa 3: ingestão local
+
+O comando abaixo detecta o formato, interpreta o CSV e exibe somente contagens e
+códigos de alerta. Nenhuma transação é persistida nesta etapa.
+
+```bash
+finance-agent ingest samples/synthetic/picpay_demo_jul_ago_2026.csv
+finance-agent ingest samples/synthetic/bradesco_demo_jul_ago_2026.csv
+```
+
+Um CSV desconhecido com colunas mínimas recebe uma sugestão, mas não é processado
+sem aprovação. Para aprovar e salvar apenas o mapeamento no registro privado:
+
+```bash
+finance-agent ingest private_data/inbox/novo.csv \
+  --approve-format "Banco Exemplo" --currency BRL --date-order dmy
+```
+
+Importações posteriores com o mesmo schema reconhecem a configuração. Mudanças
+em colunas, delimitador, ordem ou largura das linhas geram alertas; ausência de
+uma coluna mínima bloqueia o processamento. Veja
+[docs/ingestion.md](docs/ingestion.md).
+
 ## Etapa 2: contrato dos dados
 
 Um parser de qualquer banco deve produzir um `TransactionCandidate`. A camada de
@@ -73,9 +97,9 @@ Consulte [docs/canonical-schema.md](docs/canonical-schema.md) e
 
 ## Limites desta etapa
 
-Ainda nao foram implementados parsers de produção, persistência SQLite/Azure,
-OCR, classificação, agente ou integração com WhatsApp. Esta etapa define o
-contrato que essas integrações deverão respeitar.
+Ainda não foram implementados PDF, OCR, persistência SQLite/Azure, classificação,
+agente ou integração com WhatsApp. Os parsers atuais cobrem PicPay CSV, Bradesco
+CSV e CSVs tabulares aprovados pela pessoa usuária.
 
 ## Licenca
 

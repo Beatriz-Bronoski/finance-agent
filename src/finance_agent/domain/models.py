@@ -47,6 +47,7 @@ class TransactionCandidate(DomainModel):
     transaction_time: time | None = None
     amount_minor: int | None = None
     amount_direction: TransactionDirection | None = None
+    currency: str = Field(default="BRL", pattern=r"^[A-Z]{3}$")
     description_raw: str | None = None
 
     source_institution: str = Field(min_length=1)
@@ -184,6 +185,7 @@ class ClassificationContext(DomainModel):
 
     transaction_date: date
     amount_minor: int
+    currency: str
     description: str
     source_institution: str
     payment_method: PaymentMethod | None = None
@@ -197,6 +199,7 @@ class ClassificationContext(DomainModel):
         return cls(
             transaction_date=transaction.transaction_date,
             amount_minor=transaction.amount_minor,
+            currency=transaction.currency,
             description=transaction.description_normalized,
             source_institution=transaction.source_institution,
             payment_method=transaction.payment_method,
