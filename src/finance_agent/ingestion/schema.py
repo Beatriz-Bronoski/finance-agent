@@ -23,7 +23,6 @@ from finance_agent.ingestion.models import (
     SchemaDriftReport,
 )
 
-
 MAX_CSV_BYTES = 10 * 1024 * 1024
 SUPPORTED_DELIMITERS = ",;\t|"
 
@@ -347,7 +346,7 @@ class FormatDetector:
         if scored_specs and scored_specs[0][0] >= self.threshold:
             top_score, top_spec = scored_specs[0]
             if len(scored_specs) > 1:
-                second_score, second_spec = scored_specs[1]
+                second_score, _second_spec = scored_specs[1]
                 if second_score >= self.threshold and abs(top_score - second_score) <= 0.03:
                     return DetectionResult(
                         status=DetectionStatus.AMBIGUOUS,

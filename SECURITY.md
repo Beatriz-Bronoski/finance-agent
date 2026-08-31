@@ -12,6 +12,10 @@
 
 Dados reais devem permanecer em `private_data/` e ser processados localmente. Demonstracoes e testes em nuvem devem usar exclusivamente os arquivos de `samples/synthetic/`.
 
+O banco SQLite local nao possui criptografia propria. Proteja o dispositivo com
+senha e criptografia de disco, nao salve numeros completos de conta ou cartao e
+nunca force a inclusao de `private_data/` no Git.
+
 ## Incidente
 
 Se um dado sensivel for versionado:
@@ -23,4 +27,3 @@ Se um dado sensivel for versionado:
 5. Registre o incidente sem reproduzir o dado sensivel.
 
 Nao abra uma issue publica contendo o dado exposto.
-

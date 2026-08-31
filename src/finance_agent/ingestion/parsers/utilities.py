@@ -85,7 +85,8 @@ def parse_date(value: str, date_order: str | None = None) -> date:
 
     for date_format in date_formats:
         try:
-            return datetime.strptime(cleaned, date_format).date()
+            # O resultado é apenas uma data civil; fuso horário não se aplica.
+            return datetime.strptime(cleaned, date_format).date()  # noqa: DTZ007
         except ValueError:
             continue
     raise ParserValueError("data inválida")
@@ -97,7 +98,8 @@ def parse_time(value: str) -> time | None:
         return None
     for time_format in ("%H:%M:%S", "%H:%M"):
         try:
-            return datetime.strptime(cleaned, time_format).time()
+            # O extrato não fornece fuso; preservamos somente a hora civil opcional.
+            return datetime.strptime(cleaned, time_format).time()  # noqa: DTZ007
         except ValueError:
             continue
     raise ParserValueError("hora inválida")
@@ -222,4 +224,3 @@ def values_by_column(
         for index, column in enumerate(columns)
         if column
     }
-    "RECEIVED",

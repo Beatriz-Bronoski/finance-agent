@@ -2,7 +2,7 @@
 
 Pipeline financeiro extensivel para importar, normalizar, reconciliar e classificar transacoes de diferentes instituicoes. O projeto adota uma arquitetura local-first: dados financeiros reais permanecem fora do repositorio e da demonstracao publica.
 
-> Estado atual: Etapa 3 - detecção de formato, parsers CSV e schema drift.
+> Estado atual: Etapa 4 - persistência SQLite segura, versionada e idempotente.
 
 ## Objetivos
 
@@ -25,6 +25,7 @@ finance-agent/
 |-- src/finance_agent/domain/
 |-- src/finance_agent/application/
 |-- src/finance_agent/ingestion/
+|-- src/finance_agent/persistence/
 |-- tests/domain/
 |-- tests/application/
 |-- samples/synthetic/
@@ -77,6 +78,24 @@ em colunas, delimitador, ordem ou largura das linhas geram alertas; ausência de
 uma coluna mínima bloqueia o processamento. Veja
 [docs/ingestion.md](docs/ingestion.md).
 
+## Etapa 4: persistência SQLite
+
+Inicialize o banco privado e importe uma fixture sintética:
+
+```bash
+finance-agent db init
+finance-agent ingest samples/synthetic/picpay_demo_jul_ago_2026.csv --persist
+finance-agent db summary
+```
+
+O terminal exibe somente contagens e códigos seguros. Reimportar o mesmo arquivo
+não duplica transações. Coincidências entre arquivos sem identificador bancário
+confiável ficam abertas para revisão, em vez de serem descartadas. O lote é
+atômico: uma falha reverte todas as linhas financeiras daquela importação.
+
+O banco padrão fica em `private_data/finance_agent.db`, fora do Git. Consulte
+[docs/persistence.md](docs/persistence.md).
+
 ## Etapa 2: contrato dos dados
 
 Um parser de qualquer banco deve produzir um `TransactionCandidate`. A camada de
@@ -97,9 +116,9 @@ Consulte [docs/canonical-schema.md](docs/canonical-schema.md) e
 
 ## Limites desta etapa
 
-Ainda não foram implementados PDF, OCR, persistência SQLite/Azure, classificação,
-agente ou integração com WhatsApp. Os parsers atuais cobrem PicPay CSV, Bradesco
-CSV e CSVs tabulares aprovados pela pessoa usuária.
+Ainda não foram implementados PDF, OCR, classificação, API, agente ou integração
+com WhatsApp. Os parsers atuais cobrem PicPay CSV, Bradesco CSV e CSVs tabulares
+aprovados pela pessoa usuária.
 
 ## Licenca
 
