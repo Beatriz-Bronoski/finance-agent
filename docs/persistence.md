@@ -11,6 +11,11 @@ bloqueadas sem criar linhas financeiras. O banco padrão é
 - `transactions`: transações canônicas válidas;
 - `pending_transactions`: registros que exigem correção humana;
 - `duplicate_candidates`: coincidências entre arquivos e sua estratégia de detecção.
+- `categories`: categorias configuráveis e seu estado;
+- `classification_rules`: regras privadas ordenadas por prioridade;
+- `classification_decisions`: decisão atual e histórico substituído;
+- `classification_reviews`: itens que exigem confirmação;
+- `classification_corrections`: auditoria das correções humanas.
 
 Dinheiro é armazenado como `INTEGER` na menor unidade da moeda. Assim, `R$ 42,90`
 é persistido como `4290` com moeda `BRL`, sem conversão para ponto flutuante.
@@ -56,7 +61,7 @@ Total de importações concluídas: 1
 Total de transações no banco: 11
 Total de pendências abertas: 0
 Candidatas a duplicidade: 0
-Versão do banco: 1
+Versão do banco: 2
 ```
 
 Executar o mesmo arquivo novamente retorna `already_imported` e não aumenta o
