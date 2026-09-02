@@ -37,7 +37,7 @@ def test_database_commands_initialize_and_show_counts(tmp_path: Path, capsys: ob
 
     assert main(["db", "init", "--database", str(database)]) == 0
     initialized = capsys.readouterr().out  # type: ignore[attr-defined]
-    assert "Versão do banco: 1" in initialized
+    assert "Versão do banco: 2" in initialized
 
     assert main(["db", "summary", "--database", str(database)]) == 0
     summary = capsys.readouterr().out  # type: ignore[attr-defined]
