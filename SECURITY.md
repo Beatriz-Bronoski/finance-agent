@@ -16,6 +16,10 @@ O banco SQLite local nao possui criptografia propria. Proteja o dispositivo com
 senha e criptografia de disco, nao salve numeros completos de conta ou cartao e
 nunca force a inclusao de `private_data/` no Git.
 
+Regras de classificacao podem conter descricoes normalizadas de estabelecimentos
+ou destinatarios. Por isso, elas vivem somente no SQLite privado. Os comandos de
+resumo e listagem de regras nao exibem os criterios armazenados.
+
 ## Incidente
 
 Se um dado sensivel for versionado:

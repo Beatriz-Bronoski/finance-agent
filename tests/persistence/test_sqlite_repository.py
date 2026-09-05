@@ -26,9 +26,9 @@ def test_migrations_are_versioned_and_idempotent(tmp_path: Path) -> None:
     first = repository.initialize()
     second = repository.initialize()
 
-    assert first.schema_version == 1
-    assert first.migrations_applied == 1
-    assert second.schema_version == 1
+    assert first.schema_version == 2
+    assert first.migrations_applied == 2
+    assert second.schema_version == 2
     assert second.migrations_applied == 0
 
 

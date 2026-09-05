@@ -94,8 +94,105 @@ def _migration_001_initial_schema(connection: sqlite3.Connection) -> None:
         connection.execute(statement)
 
 
+def _migration_002_classification_schema(connection: sqlite3.Connection) -> None:
+    statements = (
+        """
+        CREATE TABLE categories (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL CHECK (length(name) > 0),
+            normalized_name TEXT NOT NULL UNIQUE CHECK (length(normalized_name) > 0),
+            is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE classification_rules (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL CHECK (length(name) > 0),
+            priority INTEGER NOT NULL CHECK (priority BETWEEN 1 AND 1000),
+            nature TEXT NOT NULL CHECK (
+                nature IN ('despesa', 'receita', 'transferencia_interna', 'estorno')
+            ),
+            category_id TEXT REFERENCES categories(id) ON DELETE RESTRICT,
+            description_exact TEXT,
+            merchant_exact TEXT,
+            counterparty_exact TEXT,
+            source_institution TEXT,
+            card_alias TEXT,
+            rule_fingerprint TEXT NOT NULL UNIQUE CHECK (length(rule_fingerprint) = 64),
+            is_enabled INTEGER NOT NULL DEFAULT 1 CHECK (is_enabled IN (0, 1)),
+            created_by_user INTEGER NOT NULL DEFAULT 1
+                CHECK (created_by_user IN (0, 1)),
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            CHECK (
+                description_exact IS NOT NULL OR merchant_exact IS NOT NULL
+                OR counterparty_exact IS NOT NULL OR source_institution IS NOT NULL
+                OR card_alias IS NOT NULL
+            )
+        )
+        """,
+        "CREATE INDEX ix_classification_rules_priority ON classification_rules(priority DESC)",
+        """
+        CREATE TABLE classification_decisions (
+            id TEXT PRIMARY KEY,
+            transaction_id TEXT NOT NULL REFERENCES transactions(id) ON DELETE RESTRICT,
+            nature TEXT NOT NULL CHECK (
+                nature IN ('despesa', 'receita', 'transferencia_interna', 'estorno')
+            ),
+            category_id TEXT REFERENCES categories(id) ON DELETE RESTRICT,
+            source TEXT NOT NULL CHECK (source IN ('rule', 'user')),
+            rule_id TEXT REFERENCES classification_rules(id) ON DELETE SET NULL,
+            matched_rule_ids_json TEXT NOT NULL DEFAULT '[]',
+            reason_code TEXT NOT NULL,
+            is_current INTEGER NOT NULL DEFAULT 1 CHECK (is_current IN (0, 1)),
+            created_at TEXT NOT NULL,
+            superseded_at TEXT
+        )
+        """,
+        """
+        CREATE UNIQUE INDEX uq_current_classification_decision
+        ON classification_decisions(transaction_id) WHERE is_current = 1
+        """,
+        "CREATE INDEX ix_classification_decisions_transaction ON classification_decisions(transaction_id)",
+        """
+        CREATE TABLE classification_reviews (
+            id TEXT PRIMARY KEY,
+            transaction_id TEXT NOT NULL REFERENCES transactions(id) ON DELETE RESTRICT,
+            status TEXT NOT NULL CHECK (status IN ('open', 'resolved')),
+            reason_code TEXT NOT NULL,
+            candidate_rule_ids_json TEXT NOT NULL DEFAULT '[]',
+            created_at TEXT NOT NULL,
+            resolved_at TEXT
+        )
+        """,
+        """
+        CREATE UNIQUE INDEX uq_open_classification_review
+        ON classification_reviews(transaction_id) WHERE status = 'open'
+        """,
+        "CREATE INDEX ix_classification_reviews_status ON classification_reviews(status)",
+        """
+        CREATE TABLE classification_corrections (
+            id TEXT PRIMARY KEY,
+            transaction_id TEXT NOT NULL REFERENCES transactions(id) ON DELETE RESTRICT,
+            previous_decision_id TEXT
+                REFERENCES classification_decisions(id) ON DELETE RESTRICT,
+            new_decision_id TEXT NOT NULL
+                REFERENCES classification_decisions(id) ON DELETE RESTRICT,
+            remembered_rule_id TEXT REFERENCES classification_rules(id) ON DELETE SET NULL,
+            created_at TEXT NOT NULL
+        )
+        """,
+        "CREATE INDEX ix_classification_corrections_transaction ON classification_corrections(transaction_id)",
+    )
+    for statement in statements:
+        connection.execute(statement)
+
+
 MIGRATIONS: tuple[Migration, ...] = (
     (1, "initial_persistence_schema", _migration_001_initial_schema),
+    (2, "classification_schema", _migration_002_classification_schema),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1][0]
 

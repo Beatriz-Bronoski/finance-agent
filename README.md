@@ -2,7 +2,7 @@
 
 Pipeline financeiro extensivel para importar, normalizar, reconciliar e classificar transacoes de diferentes instituicoes. O projeto adota uma arquitetura local-first: dados financeiros reais permanecem fora do repositorio e da demonstracao publica.
 
-> Estado atual: Etapa 4 - persistência SQLite segura, versionada e idempotente.
+> Estado atual: Etapa 5 - classificação por regras prioritárias e correção humana.
 
 ## Objetivos
 
@@ -96,6 +96,24 @@ atômico: uma falha reverte todas as linhas financeiras daquela importação.
 O banco padrão fica em `private_data/finance_agent.db`, fora do Git. Consulte
 [docs/persistence.md](docs/persistence.md).
 
+## Etapa 5: classificação por prioridade
+
+Crie categorias, execute o motor e consulte a fila de revisão:
+
+```bash
+finance-agent categories add "Alimentação"
+finance-agent classify run
+finance-agent classify pending
+finance-agent classify summary
+```
+
+As naturezas são `despesa`, `receita`, `transferencia_interna` e `estorno`.
+Somente a maior prioridade é considerada; empate com resultados diferentes vira
+revisão humana. Uma correção pode valer apenas para uma transação ou criar, com
+`--remember`, uma regra exata para lançamentos futuros. Decisões existentes não
+são reclassificadas silenciosamente. Consulte
+[docs/classification.md](docs/classification.md).
+
 ## Etapa 2: contrato dos dados
 
 Um parser de qualquer banco deve produzir um `TransactionCandidate`. A camada de
@@ -116,7 +134,7 @@ Consulte [docs/canonical-schema.md](docs/canonical-schema.md) e
 
 ## Limites desta etapa
 
-Ainda não foram implementados PDF, OCR, classificação, API, agente ou integração
+Ainda não foram implementados PDF, OCR, machine learning, API, agente ou integração
 com WhatsApp. Os parsers atuais cobrem PicPay CSV, Bradesco CSV e CSVs tabulares
 aprovados pela pessoa usuária.
 
