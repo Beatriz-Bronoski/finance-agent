@@ -4,7 +4,6 @@ from finance_agent.application import ingest_file, safe_summary_lines
 from finance_agent.ingestion.models import DetectionStatus, IngestionStatus
 from finance_agent.ingestion.parsers.picpay import PicPayCsvParser
 
-
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLES = ROOT / "samples" / "synthetic"
 

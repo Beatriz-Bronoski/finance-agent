@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from finance_agent.domain.enums import DataQualityCode, TransactionDirection
+from finance_agent.domain.enums import DataQualityCode, IssueSeverity, TransactionDirection
 from finance_agent.domain.models import TransactionCandidate
 from finance_agent.domain.quality import normalize_description
 from finance_agent.ingestion.models import (
@@ -12,7 +12,6 @@ from finance_agent.ingestion.models import (
     ParseDiagnostic,
     ParserResult,
 )
-from finance_agent.domain.enums import IssueSeverity
 from finance_agent.ingestion.parsers.utilities import (
     ParserValueError,
     extraction_issue,

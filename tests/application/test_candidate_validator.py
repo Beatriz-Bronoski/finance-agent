@@ -18,7 +18,6 @@ from finance_agent.domain.models import (
     TransactionCandidate,
 )
 
-
 IMPORT_ID = UUID("11111111-1111-1111-1111-111111111111")
 
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, time, timezone
+from datetime import UTC, date, datetime, time
 from decimal import Decimal
 from uuid import UUID, uuid4
 
@@ -128,7 +128,7 @@ class PendingTransaction(DomainModel):
     candidate: TransactionCandidate
     issues: list[DataQualityIssue] = Field(min_length=1)
     status: PendingStatus = PendingStatus.OPEN
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     resolved_at: datetime | None = None
 
     @model_validator(mode="after")
@@ -143,7 +143,7 @@ class PendingTransaction(DomainModel):
         return self.model_copy(
             update={
                 "status": PendingStatus.CORRECTED,
-                "resolved_at": datetime.now(timezone.utc),
+                "resolved_at": datetime.now(UTC),
             }
         )
 
@@ -214,7 +214,7 @@ class ImportBatch(DomainModel):
     id: UUID = Field(default_factory=uuid4)
     source_file_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     source_institution: str = Field(min_length=1)
-    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ImportResult(DomainModel):

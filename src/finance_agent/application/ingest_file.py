@@ -28,7 +28,6 @@ from finance_agent.ingestion.schema import (
     SchemaProfiler,
 )
 
-
 DEFAULT_REGISTRY_PATH = Path("private_data/config/bank_mappings.json")
 SUPPORTED_SUFFIXES = {".csv", ".txt"}
 

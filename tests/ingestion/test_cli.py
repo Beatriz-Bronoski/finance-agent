@@ -3,7 +3,6 @@ from pathlib import Path
 
 from finance_agent.cli import main
 
-
 ROOT = Path(__file__).resolve().parents[2]
 PICPAY = ROOT / "samples" / "synthetic" / "picpay_demo_jul_ago_2026.csv"
 

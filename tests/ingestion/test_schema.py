@@ -13,7 +13,6 @@ from finance_agent.ingestion.schema import (
     suggest_column_mapping,
 )
 
-
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLES = ROOT / "samples" / "synthetic"
 
@@ -147,6 +146,6 @@ def test_profiler_supports_cp1252_and_enforces_size_limit(tmp_path: Path) -> Non
     try:
         SchemaProfiler(max_file_bytes=5).profile(too_large)
     except ValueError as error:
-        assert getattr(error, "code").value == "file_too_large"
+        assert error.code.value == "file_too_large"
     else:
         raise AssertionError("arquivo acima do limite deveria ser bloqueado")

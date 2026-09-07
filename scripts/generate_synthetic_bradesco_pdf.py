@@ -5,7 +5,6 @@ from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "samples" / "synthetic" / "bradesco_demo_jul_ago_2026.pdf"
 

@@ -3,7 +3,6 @@
 import re
 import unicodedata
 
-
 GENERIC_DESCRIPTION_TOKENS = {
     "BOLETO",
     "CARTAO",

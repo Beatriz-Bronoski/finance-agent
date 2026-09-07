@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from finance_agent.domain.enums import ImportStatus, IssueSeverity
+from finance_agent.domain.enums import DataQualityCode, ImportStatus, IssueSeverity
 from finance_agent.domain.models import (
     CandidateCorrection,
     DataQualityIssue,
@@ -13,7 +13,6 @@ from finance_agent.domain.models import (
     SourceLocation,
     TransactionCandidate,
 )
-from finance_agent.domain.enums import DataQualityCode
 
 
 def candidate() -> TransactionCandidate:
