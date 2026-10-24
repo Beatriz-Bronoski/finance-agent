@@ -13,70 +13,86 @@ from finance_agent.domain.models import ClassificationContext
 from finance_agent.persistence.classification_repository import SQLiteClassificationRepository
 
 
-def classify_context(
-    context: ClassificationContext,
-    rules: list[ClassificationRule],
+def classificar_contexto(
+    contexto: ClassificationContext,
+    regras: list[ClassificationRule],
 ) -> ClassificationProposal:
     """Produz uma decisão explicável sem gravar ou alterar dados."""
 
-    matching = [rule for rule in rules if rule.is_enabled and rule.matches(context)]
-    if not matching:
+    regras_correspondentes = [
+        regra
+        for regra in regras
+        if regra.is_enabled and regra.verificar_correspondencia(contexto)
+    ]
+    if not regras_correspondentes:
         return ClassificationProposal(
             status=ClassificationStatus.PENDING_REVIEW,
             review_reason=ReviewReason.NO_MATCHING_RULE,
         )
 
-    highest_priority = max(rule.priority for rule in matching)
-    winners = sorted(
-        (rule for rule in matching if rule.priority == highest_priority),
-        key=lambda rule: str(rule.id),
+    maior_prioridade = max(regra.priority for regra in regras_correspondentes)
+    regras_vencedoras = sorted(
+        (
+            regra
+            for regra in regras_correspondentes
+            if regra.priority == maior_prioridade
+        ),
+        key=lambda regra: str(regra.id),
     )
-    outcomes = {(rule.nature, rule.category_id) for rule in winners}
-    winner_ids = [rule.id for rule in winners]
-    if len(outcomes) > 1:
+    classificacoes_resultantes = {
+        (regra.nature, regra.category_id)
+        for regra in regras_vencedoras
+    }
+    ids_das_regras_vencedoras = [regra.id for regra in regras_vencedoras]
+    if len(classificacoes_resultantes) > 1:
         return ClassificationProposal(
             status=ClassificationStatus.PENDING_REVIEW,
-            matched_rule_ids=winner_ids,
+            matched_rule_ids=ids_das_regras_vencedoras,
             review_reason=ReviewReason.PRIORITY_CONFLICT,
         )
 
-    selected = winners[0]
+    regra_selecionada = regras_vencedoras[0]
     return ClassificationProposal(
         status=ClassificationStatus.CLASSIFIED,
-        nature=selected.nature,
-        category_id=selected.category_id,
-        winning_rule_id=selected.id,
-        matched_rule_ids=winner_ids,
+        nature=regra_selecionada.nature,
+        category_id=regra_selecionada.category_id,
+        winning_rule_id=regra_selecionada.id,
+        matched_rule_ids=ids_das_regras_vencedoras,
     )
 
 
-def classify_pending_transactions(
-    repository: SQLiteClassificationRepository,
+def classificar_transacoes_pendentes(
+    repositorio: SQLiteClassificationRepository,
     *,
-    limit: int = 500,
+    limite: int = 500,
 ) -> ClassificationRunSummary:
     """Classifica apenas itens sem decisão atual; nunca reescreve histórico confirmado."""
 
-    transactions, skipped = repository.list_transactions_for_classification(limit=limit)
-    rules = repository.list_rules(enabled_only=True)
-    classified = 0
-    pending = 0
-    for transaction in transactions:
-        proposal = classify_context(ClassificationContext.from_transaction(transaction), rules)
-        if proposal.status == ClassificationStatus.CLASSIFIED:
-            repository.record_rule_decision(transaction.id, proposal)
-            classified += 1
-            continue
-        repository.open_review(
-            transaction.id,
-            proposal.review_reason or ReviewReason.NO_MATCHING_RULE,
-            proposal.matched_rule_ids,
+    transacoes, ignoradas = repositorio.list_transactions_for_classification(
+        limit=limite
+    )
+    regras = repositorio.list_rules(enabled_only=True)
+    quantidade_classificadas = 0
+    quantidade_pendentes = 0
+    for transacao in transacoes:
+        proposta = classificar_contexto(
+            ClassificationContext.from_transaction(transacao),
+            regras,
         )
-        pending += 1
+        if proposta.status == ClassificationStatus.CLASSIFIED:
+            repositorio.record_rule_decision(transacao.id, proposta)
+            quantidade_classificadas += 1
+            continue
+        repositorio.open_review(
+            transacao.id,
+            proposta.review_reason or ReviewReason.NO_MATCHING_RULE,
+            proposta.matched_rule_ids,
+        )
+        quantidade_pendentes += 1
 
     return ClassificationRunSummary(
-        examined=len(transactions),
-        classified=classified,
-        pending_review=pending,
-        skipped_with_decision=skipped,
+        examined=len(transacoes),
+        classified=quantidade_classificadas,
+        pending_review=quantidade_pendentes,
+        skipped_with_decision=ignoradas,
     )

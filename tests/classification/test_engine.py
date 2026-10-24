@@ -6,7 +6,10 @@ from uuid import uuid4
 import pytest
 
 from finance_agent.application import ingest_and_persist
-from finance_agent.classification.engine import classify_context, classify_pending_transactions
+from finance_agent.classification.engine import (
+    classificar_contexto,
+    classificar_transacoes_pendentes,
+)
 from finance_agent.classification.models import (
     ClassificationRule,
     ClassificationStatus,
@@ -87,7 +90,7 @@ def test_highest_priority_wins_and_lower_rule_cannot_override() -> None:
         description_exact="LOJA TESTE",
     )
 
-    result = classify_context(context, [lower, higher])
+    result = classificar_contexto(context, [lower, higher])
 
     assert result.status == ClassificationStatus.CLASSIFIED
     assert result.category_id == higher_category
@@ -114,7 +117,7 @@ def test_equal_priority_with_same_output_is_audited_without_conflict() -> None:
         for name in ("Regra A", "Regra B")
     ]
 
-    result = classify_context(context, rules)
+    result = classificar_contexto(context, rules)
 
     assert result.status == ClassificationStatus.CLASSIFIED
     assert result.category_id == category_id
@@ -142,8 +145,8 @@ def test_optional_rule_criteria_must_all_match_when_present() -> None:
         merchant_exact="carteira teste",
     )
 
-    matching = classify_context(context, [rule])
-    different_card = classify_context(
+    matching = classificar_contexto(context, [rule])
+    different_card = classificar_contexto(
         context.model_copy(update={"card_alias": "Outro cartão"}),
         [rule],
     )
@@ -172,7 +175,7 @@ def test_equal_priority_with_different_outputs_requires_review() -> None:
         for name in ("Opção A", "Opção B")
     ]
 
-    result = classify_context(context, rules)
+    result = classificar_contexto(context, rules)
 
     assert result.status == ClassificationStatus.PENDING_REVIEW
     assert result.review_reason == ReviewReason.PRIORITY_CONFLICT
@@ -182,8 +185,8 @@ def test_equal_priority_with_different_outputs_requires_review() -> None:
 def test_no_rule_creates_one_review_without_duplicate_rows(tmp_path: Path) -> None:
     repository = _persist_picpay(tmp_path)
 
-    first = classify_pending_transactions(repository)
-    second = classify_pending_transactions(repository)
+    first = classificar_transacoes_pendentes(repository)
+    second = classificar_transacoes_pendentes(repository)
     reviews = repository.list_open_reviews()
 
     assert first.examined == 11
@@ -197,7 +200,7 @@ def test_user_correction_can_be_remembered_for_future_transaction(tmp_path: Path
     repository = _persist_picpay(tmp_path)
     category = repository.create_category("Alimentação")
     transaction = _market_transaction(repository)
-    classify_pending_transactions(repository)
+    classificar_transacoes_pendentes(repository)
 
     correction = repository.correct_classification(
         transaction.id,
@@ -222,7 +225,7 @@ def test_user_correction_can_be_remembered_for_future_transaction(tmp_path: Path
         database_path=repository.database_path,
         registry_path=tmp_path / "registry.json",
     )
-    result = classify_pending_transactions(repository)
+    result = classificar_transacoes_pendentes(repository)
     database_summary = repository.classification_summary()
 
     assert result.classified == 1
@@ -250,7 +253,7 @@ def test_existing_decision_is_not_silently_reclassified(tmp_path: Path) -> None:
         )
     )
 
-    result = classify_pending_transactions(repository)
+    result = classificar_transacoes_pendentes(repository)
     current = repository.get_current_decision(transaction.id)
 
     assert result.skipped_with_decision == 1
@@ -273,12 +276,12 @@ def test_disabled_rule_and_inactive_category_are_not_applied(tmp_path: Path) -> 
     )
 
     assert repository.set_rule_enabled(rule.id, enabled=False)
-    result = classify_pending_transactions(repository)
+    result = classificar_transacoes_pendentes(repository)
     assert result.classified == 0
 
     assert repository.set_rule_enabled(rule.id, enabled=True)
     assert repository.set_category_active(category.id, active=False)
-    result = classify_pending_transactions(repository)
+    result = classificar_transacoes_pendentes(repository)
     assert result.classified == 0
     assert repository.classification_summary().enabled_rules == 0
 
@@ -376,7 +379,7 @@ def test_repository_conflict_records_only_rule_ids_not_financial_values(tmp_path
             )
         )
 
-    classify_pending_transactions(repository)
+    classificar_transacoes_pendentes(repository)
     review = next(
         item for item in repository.list_open_reviews() if item.transaction_id == transaction.id
     )

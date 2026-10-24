@@ -68,11 +68,11 @@ class ClassificationRule(ClassificationModel):
         mode="before",
     )
     @classmethod
-    def normalize_match_criterion(cls, value: object) -> object:
+    def normalizar_criterio_de_correspondencia(cls, value: object) -> object:
         return normalize_description(value) if isinstance(value, str) else value
 
     @model_validator(mode="after")
-    def require_match_criteria(self) -> ClassificationRule:
+    def validar_criterios_de_correspondencia(self) -> ClassificationRule:
         criteria = (
             self.description_exact,
             self.merchant_exact,
@@ -90,7 +90,7 @@ class ClassificationRule(ClassificationModel):
         return self
 
     @property
-    def criteria_count(self) -> int:
+    def calcular_quantidade_de_criterios(self) -> int:
         return sum(
             value is not None
             for value in (
@@ -102,17 +102,21 @@ class ClassificationRule(ClassificationModel):
             )
         )
 
-    def matches(self, context: ClassificationContext) -> bool:
-        expected_and_actual = (
-            (self.description_exact, context.description),
-            (self.merchant_exact, context.merchant_name),
-            (self.counterparty_exact, context.counterparty_name),
-            (self.source_institution, context.source_institution),
-            (self.card_alias, context.card_alias),
+    def verificar_correspondencia(self, contexto: ClassificationContext) -> bool:
+        valores_esperados_e_atuais = (
+            (self.description_exact, contexto.description),
+            (self.merchant_exact, contexto.merchant_name),
+            (self.counterparty_exact, contexto.counterparty_name),
+            (self.source_institution, contexto.source_institution),
+            (self.card_alias, contexto.card_alias),
         )
         return all(
-            expected is None or (actual is not None and expected == normalize_description(actual))
-            for expected, actual in expected_and_actual
+            esperado is None
+            or (
+                atual is not None
+                and esperado == normalize_description(atual)
+            )
+            for esperado, atual in valores_esperados_e_atuais
         )
 
 
@@ -129,7 +133,7 @@ class ClassificationDecision(ClassificationModel):
     is_current: bool = True
 
     @model_validator(mode="after")
-    def require_consistent_source_and_category(self) -> ClassificationDecision:
+    def validar_origem_e_categoria(self) -> ClassificationDecision:
         if (
             self.nature in {TransactionNature.EXPENSE, TransactionNature.INCOME}
             and self.category_id is None
@@ -158,7 +162,7 @@ class ClassificationProposal(ClassificationModel):
     review_reason: ReviewReason | None = None
 
     @model_validator(mode="after")
-    def require_status_fields(self) -> ClassificationProposal:
+    def validar_campos_da_situacao(self) -> ClassificationProposal:
         if self.status == ClassificationStatus.CLASSIFIED:
             if self.nature is None or self.winning_rule_id is None:
                 raise ValueError("proposta classificada precisa de natureza e regra vencedora")
