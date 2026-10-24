@@ -238,7 +238,9 @@ class SQLiteClassificationRepository(SQLiteFinanceRepository):
                 if (
                     winning_rule.nature != proposal.nature
                     or winning_rule.category_id != proposal.category_id
-                    or not winning_rule.matches(ClassificationContext.from_transaction(transaction))
+                    or not winning_rule.verificar_correspondencia(
+                        ClassificationContext.from_transaction(transaction)
+                    )
                 ):
                     raise ValueError("winning_rule_does_not_support_proposal")
                 decision = ClassificationDecision(

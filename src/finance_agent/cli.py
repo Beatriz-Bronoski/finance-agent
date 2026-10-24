@@ -13,7 +13,7 @@ from finance_agent.application.persist_ingestion import (
     ingest_and_persist,
     safe_persistence_lines,
 )
-from finance_agent.classification.engine import classify_pending_transactions
+from finance_agent.classification.engine import classificar_transacoes_pendentes
 from finance_agent.classification.models import TransactionNature
 from finance_agent.ingestion.models import IngestionStatus, json_ready
 from finance_agent.persistence.classification_repository import (
@@ -182,7 +182,8 @@ def _run_rule_command(args: argparse.Namespace) -> int:
             category = categories.get(rule.category_id, "-")
             print(
                 f"{rule.id} | prioridade={rule.priority} | natureza={rule.nature.value} | "
-                f"categoria={category} | critérios={rule.criteria_count} | {state}"
+                f"categoria={category} | "
+                f"critérios={rule.calcular_quantidade_de_criterios} | {state}"
             )
         return 0
     enabled = args.rule_command == "enable"
@@ -194,7 +195,7 @@ def _run_rule_command(args: argparse.Namespace) -> int:
 def _run_classification_command(args: argparse.Namespace) -> int:
     repository = SQLiteClassificationRepository(args.database)
     if args.classify_command == "run":
-        result = classify_pending_transactions(repository, limit=args.limit)
+        result = classificar_transacoes_pendentes(repository, limite=args.limit)
         print("Classificação concluída.")
         print(f"Transações examinadas: {result.examined}")
         print(f"Classificadas automaticamente: {result.classified}")
