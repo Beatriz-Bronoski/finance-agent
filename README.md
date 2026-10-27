@@ -42,7 +42,6 @@ finance-agent/
 
 - `picpay_demo_jul_ago_2026.csv`: estrutura equivalente a um export CSV, com credito, debito, sinal Unicode e duplicidade intencional.
 - `bradesco_demo_jul_ago_2026.csv`: estrutura delimitada por ponto e virgula, com IDs variaveis, ID zero e historico contendo separador adicional.
-- `bradesco_demo_jul_ago_2026.pdf`: PDF textual ficticio, incluindo uma transacao monetaria que comeca por texto para testar segmentacao.
 
 Todos os nomes, valores, datas, documentos, contas e descricoes foram inventados.
 

@@ -6,7 +6,6 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 
 from finance_agent import __version__
-from finance_agent.api.dependencias import obter_repositorio
 from finance_agent.api.modelos import (
     RespostaDaExecucao,
     RespostaDeCategoria,
@@ -22,6 +21,13 @@ from finance_agent.api.modelos import (
 from finance_agent.classification.engine import classificar_transacoes_pendentes
 from finance_agent.classification.models import Category, ClassificationRule
 from finance_agent.persistence import SQLiteClassificationRepository
+
+
+def obter_repositorio() -> SQLiteClassificationRepository:
+    """Abre o repositório no banco privado padrão."""
+
+    return SQLiteClassificationRepository()
+
 
 RepositorioDaApi = Annotated[
     SQLiteClassificationRepository,

@@ -27,7 +27,6 @@ notebooks/private/
 # Credenciais e configuracoes locais
 .env
 .env.*
-!.env.example
 *.pem
 *.key
 

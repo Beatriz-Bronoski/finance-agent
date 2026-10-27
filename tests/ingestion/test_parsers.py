@@ -4,7 +4,6 @@ from finance_agent.application import ingest_file, safe_summary_lines
 from finance_agent.ingestion.models import DetectionStatus, IngestionStatus
 from finance_agent.ingestion.parsers.picpay import PicPayCsvParser
 
-
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLES = ROOT / "samples" / "synthetic"
 
@@ -137,8 +136,7 @@ def test_generic_positive_amount_without_direction_remains_pending(tmp_path: Pat
 def test_new_format_requires_currency_and_preserves_foreign_currency(tmp_path: Path) -> None:
     foreign = tmp_path / "foreign.csv"
     foreign.write_text(
-        "Date,Description,Amount,Direction\n"
-        "2026-08-13,STORE DEMO,10.00,Debit\n",
+        "Date,Description,Amount,Direction\n2026-08-13,STORE DEMO,10.00,Debit\n",
         encoding="utf-8",
     )
     registry = tmp_path / "registry.json"
@@ -175,8 +173,10 @@ def test_safe_summary_never_exposes_transaction_values(tmp_path: Path) -> None:
 
 
 def test_unsupported_extension_and_corrupt_registry_are_blocked(tmp_path: Path) -> None:
+    arquivo_pdf = tmp_path / "extrato.pdf"
+    arquivo_pdf.write_bytes(b"%PDF-1.4\n% arquivo ficticio para teste")
     unsupported = ingest_file(
-        SAMPLES / "bradesco_demo_jul_ago_2026.pdf",
+        arquivo_pdf,
         registry_path=tmp_path / "registry.json",
     )
     assert unsupported.summary.status == IngestionStatus.BLOCKED

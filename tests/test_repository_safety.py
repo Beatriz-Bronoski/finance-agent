@@ -7,7 +7,6 @@ FORBIDDEN_SUFFIXES = {".xlsx", ".xls", ".ofx", ".qif", ".db", ".sqlite", ".sqlit
 ALLOWED_DATA_FILES = {
     SYNTHETIC / "picpay_demo_jul_ago_2026.csv",
     SYNTHETIC / "bradesco_demo_jul_ago_2026.csv",
-    SYNTHETIC / "bradesco_demo_jul_ago_2026.pdf",
 }
 
 

@@ -5,8 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from finance_agent import __version__
-from finance_agent.api import criar_aplicacao
-from finance_agent.api.dependencias import obter_repositorio
+from finance_agent.api.aplicacao import criar_aplicacao, obter_repositorio
 from finance_agent.application import ingest_and_persist
 from finance_agent.classification.models import DecisionSource
 from finance_agent.persistence import SQLiteClassificationRepository
