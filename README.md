@@ -2,7 +2,7 @@
 
 Pipeline financeiro extensivel para importar, normalizar, reconciliar e classificar transacoes de diferentes instituicoes. O projeto adota uma arquitetura local-first: dados financeiros reais permanecem fora do repositorio e da demonstracao publica.
 
-> Estado atual: Etapa 5 - classificação por regras prioritárias e correção humana.
+> Estado atual: Etapa 6 - API local para operar a classificação do MVP.
 
 ## Objetivos
 
@@ -26,8 +26,10 @@ finance-agent/
 |-- src/finance_agent/application/
 |-- src/finance_agent/ingestion/
 |-- src/finance_agent/persistence/
+|-- src/finance_agent/api/
 |-- tests/domain/
 |-- tests/application/
+|-- tests/api/
 |-- samples/synthetic/
 |-- scripts/
 |-- docs/
@@ -40,7 +42,6 @@ finance-agent/
 
 - `picpay_demo_jul_ago_2026.csv`: estrutura equivalente a um export CSV, com credito, debito, sinal Unicode e duplicidade intencional.
 - `bradesco_demo_jul_ago_2026.csv`: estrutura delimitada por ponto e virgula, com IDs variaveis, ID zero e historico contendo separador adicional.
-- `bradesco_demo_jul_ago_2026.pdf`: PDF textual ficticio, incluindo uma transacao monetaria que comeca por texto para testar segmentacao.
 
 Todos os nomes, valores, datas, documentos, contas e descricoes foram inventados.
 
@@ -114,6 +115,19 @@ revisão humana. Uma correção pode valer apenas para uma transação ou criar,
 são reclassificadas silenciosamente. Consulte
 [docs/classification.md](docs/classification.md).
 
+## Etapa 6: API local
+
+Execute a API apenas no computador local:
+
+```bash
+python -m uvicorn finance_agent.api.aplicacao:aplicacao --reload --host 127.0.0.1
+```
+
+Abra `http://127.0.0.1:8000/docs` para testar categorias, regras, execução da
+classificação, revisões e correções. A API reaproveita o motor e o SQLite da
+etapa 5; a importação dos extratos continua no terminal para manter o MVP
+simples. Consulte [docs/api.md](docs/api.md).
+
 ## Etapa 2: contrato dos dados
 
 Um parser de qualquer banco deve produzir um `TransactionCandidate`. A camada de
@@ -134,9 +148,10 @@ Consulte [docs/canonical-schema.md](docs/canonical-schema.md) e
 
 ## Limites desta etapa
 
-Ainda não foram implementados PDF, OCR, machine learning, API, agente ou integração
-com WhatsApp. Os parsers atuais cobrem PicPay CSV, Bradesco CSV e CSVs tabulares
-aprovados pela pessoa usuária.
+A API é local, para uma única pessoa, e ainda não possui autenticação. Também não
+foram implementados OCR, machine learning, agente ou integração com WhatsApp.
+Os parsers atuais cobrem PicPay CSV, Bradesco CSV e CSVs tabulares aprovados
+pela pessoa usuária.
 
 ## Licenca
 
